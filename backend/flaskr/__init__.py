@@ -50,7 +50,7 @@ def create_app(test_config=None):
             current_categories = [category.format() for category in categories]
 
             if len(current_categories) == 0:
-                abort(404)
+                abort(405)
             else:
                 return jsonify({
                     'success': True,
@@ -59,7 +59,7 @@ def create_app(test_config=None):
                 })
         except:
             print(sys.exc_info())
-            abort(405)
+            abort(404)
 
     # Create an endpoint to handle GET requests for questions,
     # including pagination (every 10 questions).
@@ -75,7 +75,7 @@ def create_app(test_config=None):
             current_questions = paginate_questions(request, selection)
 
             if len(current_questions) == 0:
-                abort(404)
+                abort(405)
             else:
                 return jsonify({
                     'success': True,
@@ -86,12 +86,34 @@ def create_app(test_config=None):
                 })
         except:
             print(sys.exc_info())
-            abort(405)
+            abort(404)
 
 
     # GET endpoint to get questions based on category. In the "List" tab / main screen, clicking on one of the
     # categories in the left column will cause only questions of that
     # category to be shown.
+    @app.route('/categories/<int:category_id>/questions', methods=['GET'])
+    def get_questions_by_category(category_id):
+        try:
+            category = Category.query.filter(
+                Category.id == category_id).one_or_none()
+
+            selection = Question.query.order_by(Question.id).filter(
+                Question.category == category_id)
+            current_questions = paginate_questions(request, selection)
+
+            if len(current_questions) == 0:
+                abort(405)
+            else:
+                return jsonify({
+                    'success': True,
+                    'questions': current_questions,
+                    'total_questions': len(Question.query.all()),
+                    'current_category': category.format()
+                })
+        except:
+            print(sys.exc_info())
+            abort(404)
     
 
     # Create an endpoint to DELETE question using a question ID.
