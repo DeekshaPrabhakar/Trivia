@@ -12,7 +12,7 @@ class QuestionView extends Component {
       questions: [],
       page: 1,
       totalQuestions: 0,
-      categories: {},
+      categories: [],
       currentCategory: null,
     }
   }
@@ -78,7 +78,7 @@ class QuestionView extends Component {
 
   submitSearch = (searchTerm) => {
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/questions/search`, 
       type: "POST",
       dataType: 'json',
       contentType: 'application/json',
@@ -125,10 +125,10 @@ class QuestionView extends Component {
         <div className="categories-list">
           <h2 onClick={() => {this.getQuestions()}}>Categories</h2>
           <ul>
-            {Object.keys(this.state.categories).map((id, ) => (
-              <li key={id} onClick={() => {this.getByCategory(id)}}>
-                {this.state.categories[id]}
-                <img className="category" src={`${this.state.categories[id]}.svg`}/>
+            {this.state.categories.map((category,index ) => (
+              <li key={category.id} onClick={() => {this.getByCategory(category.id)}}>
+                {category.type}
+                <img className="category" src={`${category.type}.svg`}/>
               </li>
             ))}
           </ul>
@@ -144,6 +144,7 @@ class QuestionView extends Component {
               category={this.state.categories[q.category]} 
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
+              categoryImage={this.state.categories[q.category - 1] ? this.state.categories[q.category -1].type : ''}
             />
           ))}
           <div className="pagination-menu">
