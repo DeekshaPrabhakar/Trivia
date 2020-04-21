@@ -175,8 +175,6 @@ def create_app(test_config=None):
         except:
             abort(405)
 
-
-    # @TODO:
     # Create a POST endpoint to get questions based on a search term.
     # It should return any questions for whom the search term
     # is a substring of the question.
@@ -270,14 +268,6 @@ def create_app(test_config=None):
             "error": 422,
             "message": "unprocessable"
         }), 422
-    
-    @app.errorhandler(400)
-    def bad_request(error):
-        return jsonify({
-            "success": False,
-            "error": 400,
-            "message": "bad request"
-        }), 400
 
     @app.errorhandler(500)
     def server_error(error):
