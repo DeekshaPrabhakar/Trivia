@@ -221,8 +221,32 @@ def create_app(test_config=None):
     # TEST: In the "Play" tab, after a user selects "All" or a category,
     # one question at a time is displayed, the user is allowed to answer
     # and shown whether they were correct or not.
-    
+    @app.route('/quizzes', methods=['POST'])
+    def play_quiz():
+        body = request.get_json()
+        previousQuestions = body.get('previous_questions', None)
+        quizCategory_id = body.get('quiz_category', None)
 
+        try:
+            if quizCategory_id == 0:
+              selection = Question.query.order_by(Question.id).all()
+            else:
+              selection = Question.query.order_by(Question.id).filter(
+                Question.category == quizCategory_id).filter(Question.id.notin_(previousQuestions))
+            current_questions = paginate_questions(request, selection)
+
+            if len(current_questions) == 0:
+                abort(404)
+            else:
+                return jsonify({
+                    'success': True,
+                    'previousQuestions': previousQuestions,
+                    'question': random.choice(current_questions)
+                })
+        except:
+            print(sys.exc_info())
+            abort(500)
+    
     @app.errorhandler(404)
     def not_found(error):
         return jsonify({
@@ -254,4 +278,12 @@ def create_app(test_config=None):
             "error": 400,
             "message": "bad request"
         }), 400
+
+    @app.errorhandler(500)
+    def server_error(error):
+        return jsonify({
+            "success": False,
+            "error": 500,
+            "message": "server error"
+        }), 500
     return app
