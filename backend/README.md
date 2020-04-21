@@ -52,20 +52,6 @@ Setting the `FLASK_ENV` variable to `development` will detect file changes and r
 
 Setting the `FLASK_APP` variable to `flaskr` directs flask to use the `flaskr` directory and the `__init__.py` file to find the application. 
 
-## Tasks
-
-One note before you delve into your tasks: for each endpoint you are expected to define the endpoint and response data. The frontend will be a plentiful resource because it is set up to expect certain endpoints and response data formats already. You should feel free to specify endpoints in your own way; if you do so, make sure to update the frontend or you will get some unexpected behavior. 
-
-1. Use Flask-CORS to enable cross-domain requests and set response headers. 
-2. Create an endpoint to handle GET requests for questions, including pagination (every 10 questions). This endpoint should return a list of questions, number of total questions, current category, categories. 
-3. Create an endpoint to handle GET requests for all available categories. 
-4. Create an endpoint to DELETE question using a question ID. 
-5. Create an endpoint to POST a new question, which will require the question and answer text, category, and difficulty score. 
-6. Create a POST endpoint to get questions based on category. 
-7. Create a POST endpoint to get questions based on a search term. It should return any questions for whom the search term is a substring of the question. 
-8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
-9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
-
 ## API Reference
 
 ### Getting Started
@@ -82,15 +68,16 @@ Errors are returned as JSON objects in the following format:
 }
 ```
 The API will return three error types when requests fail:
-- 400: Bad Request
 - 404: Resource Not Found
+- 405: Method Not Allowed
 - 422: Not Processable 
+- 500: Server Error
 
 ### Endpoints 
 #### GET /categories
 - General:
     - Returns a list of category objects, success value, and total number of categories
-    - Results are paginated in groups of 8. Include a request argument to choose page number, starting from 1. 
+    - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1. 
 - Sample: `curl http://127.0.0.1:5000/categories`
 
 ``` {
@@ -127,8 +114,8 @@ The API will return three error types when requests fail:
 
 #### GET /questions
 - General:
-    - Returns a list of category objects, current category (if selected), question objects, success value, and total number of questions
-    - Results are paginated in groups of 8. Include a request argument to choose page number, starting from 1. 
+    - Returns a list of questions, number of total questions, current category, categories
+    - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1. 
 - Sample: `http://127.0.0.1:5000/questions`
 
 ```{
@@ -236,6 +223,46 @@ The API will return three error types when requests fail:
 }
 ```
 
+#### GET /categories/{category_id}/questions
+- General:
+    - Returns a list of questions on category, number of total questions, current category, success value
+    - Results are paginated in groups of 10. Include a request argument to choose page number, starting from 1. 
+- Sample: `http://127.0.0.1:5000/categories/1/questions`
+
+```
+{
+  "current_category": {
+    "id": 1,
+    "type": "Science"
+  },
+  "questions": [
+    {
+      "answer": "The Liver",
+      "category": 1,
+      "difficulty": 4,
+      "id": 20,
+      "question": "What is the heaviest organ in the human body?"
+    },
+    {
+      "answer": "Alexander Fleming",
+      "category": 1,
+      "difficulty": 3,
+      "id": 21,
+      "question": "Who discovered penicillin?"
+    },
+    {
+      "answer": "Blood",
+      "category": 1,
+      "difficulty": 4,
+      "id": 22,
+      "question": "Hematology is a branch of medicine involving the study of what?"
+    }
+  ],
+  "success": true,
+  "total_questions": 19
+}
+```
+
 #### POST /questions
 - General:
     - Creates a new question using the submitted question, answer, category and difficulty. Returns the id of the created question, success value, total questions, and questions list based on current page number to update the frontend. 
@@ -286,6 +313,28 @@ The API will return three error types when requests fail:
   ],
   "success": true,
   "total_questions": 19
+}
+```
+
+#### POST /quizzes
+- General:
+    - This endpoint takes category and previous question parameters and returns a random questions within the given category, if provided, and that is not one of the previous questions.
+    - Returns the previous question ids, success value and a random question within the given category that is not one of the previous questions. 
+- `curl http://127.0.0.1:5000/quizzes -X POST -H "Content-Type: application/json" -d '{"quiz_category":1, "previous_questions":[21]}'`
+
+```
+{
+  "previousQuestions": [
+    21
+  ],
+  "question": {
+    "answer": "Blood",
+    "category": 1,
+    "difficulty": 4,
+    "id": 22,
+    "question": "Hematology is a branch of medicine involving the study of what?"
+  },
+  "success": true
 }
 ```
 
