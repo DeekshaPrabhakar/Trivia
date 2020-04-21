@@ -184,6 +184,33 @@ def create_app(test_config=None):
     # TEST: Search by any phrase. The questions list will update to include
     # only question that include that string within their question.
     # Try using the word "title" to start.
+    @app.route('/questions/search', methods=['POST'])
+    def search_questions():
+        body = request.get_json()
+        search = body.get('searchTerm', None)
+
+        try:
+            if search:
+                selection = Question.query.order_by(Question.id).filter(
+                    Question.question.ilike('%{}%'.format(search)))
+            else:
+                selection = Question.query.order_by(Question.id).all()
+
+            categories = Category.query.order_by(Category.id).all()
+            current_categories = [category.format() for category in categories]
+
+            current_questions = paginate_questions(request, selection)
+
+            return jsonify({
+                'success': True,
+                'questions': current_questions,
+                'categories': current_categories,
+                'total_questions': len(Question.query.all()),
+                'current_category': None
+            })
+        except:
+            print(sys.exc_info())
+            abort(405)
 
     
     #  Create a POST endpoint to get questions to play the quiz.

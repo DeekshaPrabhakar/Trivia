@@ -19,9 +19,9 @@ class TriviaTestCase(unittest.TestCase):
         setup_db(self.app, self.database_path)
  
         self.new_question = {
-            'question': 'What movie earned Tom Hanks his third straight Oscar nomination, in 1996?',
-            'answer': 'Apollo 13',
-            'category': 5,
+            'question': 'California capital is?',
+            'answer': 'Sacramento',
+            'category': 3,
             'difficulty': 4
         }
 
@@ -74,7 +74,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'resource not found')
 
     def test_delete_question(self):
-        question_id = 5
+        question_id = 10
         res = self.client().delete('/questions/' + str(question_id))
         data = json.loads(res.data)
         question = Question.query.filter(Question.id == question_id).one_or_none()
@@ -110,6 +110,28 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 405)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'method not allowed')
+
+    def test_get_search_questions_with_results(self):
+        res = self.client().post('/questions/search', json={'searchTerm':'title'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['categories'])
+        self.assertEqual(data['current_category'], None)
+        self.assertEqual(len(data['questions']), 2)
+
+    def test_get_search_questions_without_results(self):
+        res = self.client().post('/questions/search', json={'searchTerm':'zzzz'})
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['total_questions'])
+        self.assertTrue(data['categories'])
+        self.assertEqual(data['current_category'], None)
+        self.assertEqual(len(data['questions']), 0)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
